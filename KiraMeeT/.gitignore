@@ -1,0 +1,10 @@
+db.sqlite3
+__pycache__/
+*.py[cod]
+*$py.class
+local_settings.py
+.env
+# .pre-commit-config.yaml
+media/
+debug.log
+# static/
