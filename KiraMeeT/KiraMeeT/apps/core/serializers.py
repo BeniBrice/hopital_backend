@@ -42,3 +42,27 @@ class UserSignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Le mot de passe ne répond pas aux critères de validation."
             )
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        fields = ("email", "password")
+
+    def validate(self, data):
+        email = data.get("email", None)
+        password = data.get("password", None)
+
+        # Vérifier que l'email et le mot de passe sont fournis
+        if not email or not password:
+            raise serializers.ValidationError("Both email and password are required.")
+
+        # Vérifier que l'utilisateur existe avec cet email
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError(
+                "No user is registered with this email address."
+            )
+
+        return data

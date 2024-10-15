@@ -1,11 +1,10 @@
 from django.urls import path
 
-from .views import SignupAPIView
+from .views import LoginAPIView, SignupAPIView
 
-app_name = "core"  # Utilisation d'un espace de noms
+app_name = "core"
 
 urlpatterns = [
-    path(
-        "signup/", SignupAPIView.as_view(), name="signup"
-    ),  # Ajoute l'endpoint pour le signup
+    path("login/", LoginAPIView.as_view(), name="user_login"),
+    path("signup/", SignupAPIView.as_view(), name="signup"),
 ]

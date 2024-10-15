@@ -21,4 +21,5 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("KiraMeeT.apps.core.urls", namespace="core")),
+    path("kira/", include("KiraMeeT.apps.appointment.urls", namespace="appointment")),
 ]

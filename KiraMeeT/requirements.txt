@@ -27,11 +27,23 @@ decorator==5.1.1
 django==5.1.1
     # via
     #   -r requirements.in
+    #   django-allauth
     #   django-extensions
+    #   django-rest-auth
     #   djangorestframework
+    #   djangorestframework-simplejwt
+django-allauth==65.0.2
+    # via -r requirements.in
 django-extensions==3.2.3
     # via -r requirements.in
+django-rest-auth==0.9.5
+    # via -r requirements.in
 djangorestframework==3.15.2
+    # via
+    #   -r requirements.in
+    #   django-rest-auth
+    #   djangorestframework-simplejwt
+djangorestframework-simplejwt==5.3.1
     # via -r requirements.in
 exceptiongroup==1.2.2
     # via
@@ -69,6 +81,8 @@ prompt-toolkit==3.0.48
     # via
     #   -r requirements.in
     #   ipython
+psycopg2==2.9.9
+    # via -r requirements.in
 ptyprocess==0.7.0
     # via
     #   -r requirements.in
@@ -81,6 +95,10 @@ pygments==2.18.0
     # via
     #   -r requirements.in
     #   ipython
+pyjwt==2.9.0
+    # via
+    #   -r requirements.in
+    #   djangorestframework-simplejwt
 pyproject-hooks==1.2.0
     # via
     #   -r requirements.in
@@ -90,6 +108,7 @@ six==1.16.0
     # via
     #   -r requirements.in
     #   asttokens
+    #   django-rest-auth
 sqlparse==0.5.1
     # via
     #   -r requirements.in

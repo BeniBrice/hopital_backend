@@ -1,10 +1,19 @@
+from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication  # noqa
+
+# from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import UserSignupSerializer
+from KiraMeeT.apps.core.models import User  # noqa
+from KiraMeeT.Response_messages import error_response, success_response
+
+from .serializers import UserLoginSerializer, UserSignupSerializer
 
 
 class SignupAPIView(APIView):
@@ -62,3 +71,36 @@ class SignupAPIView(APIView):
                 {"error": "Erreur interne du serveur", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    # authentication_classes = [TokenAuthentication]
+    def post(self, request, *args, **kwargs):
+        # Utiliser le serializer pour valider les données de requête
+        serializer = UserLoginSerializer(data=request.data)
+
+        if serializer.is_valid():
+            email = serializer.validated_data["email"]
+            password = serializer.validated_data["password"]
+
+            # Vérifier si l'utilisateur existe avec l'email et mot de passe
+            user = authenticate(username=email, password=password)
+
+            if user:
+                # Générer ou obtenir un token
+                token, created = Token.objects.get_or_create(user=user)
+
+                response_data = {"email": user.email, "token": token.key}
+                return success_response(
+                    "User connected successfully.", response_data, status.HTTP_200_OK
+                )
+            else:
+                return error_response(
+                    "Invalid credentials, please try again.",
+                    status.HTTP_401_UNAUTHORIZED,
+                )
+
+        # Si les données ne sont pas valides, retourner les erreurs de validation
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
