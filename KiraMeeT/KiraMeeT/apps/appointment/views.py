@@ -3,9 +3,10 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 
 from KiraMeeT.Response_messages import error_response, success_response
+from KiraMeeT.views_mixins import MultipleSerializerAPIMixin
 
-from .models import Specialty
-from .serializers import SpecialitySerializer
+from .models import Doctor, Specialty
+from .serializers import DoctorCreateSerializer, DoctorSerializer, DoctorUpdateSerializer, SpecialitySerializer
 
 
 class SpecialtyViewset(viewsets.ModelViewSet):
@@ -38,3 +39,11 @@ class SpecialtyViewset(viewsets.ModelViewSet):
             serializer.errors,
             status.HTTP_400_BAD_REQUEST,
         )
+
+
+class DoctorViewSet(MultipleSerializerAPIMixin, viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
+    serializer_class = DoctorSerializer
+    create_serializer_class = DoctorCreateSerializer
+    update_serializer_class = DoctorUpdateSerializer
+    queryset = Doctor.objects.all()

@@ -3,6 +3,7 @@ import string
 
 from django.db import models
 
+from KiraMeeT.apps.appointment.managers import DoctorManager
 from KiraMeeT.apps.core.models import User  # noqa
 
 
@@ -25,6 +26,8 @@ class Doctor(models.Model):
     address = models.CharField(max_length=100, null=False, blank=False)
     cabinet = models.CharField(max_length=100, null=True, blank=True)
     joined_at = models.DateTimeField(auto_now_add=True)
+    
+    objects = DoctorManager()
 
     def __str__(self):
         return self.cabinet
@@ -74,9 +77,19 @@ class AppointMent(models.Model):
         self.status = AppointMent.AppointMentStatus.ACCEPTED
         self.save()
         return self.is_accepted
+    
+    def is_canceled(self):
+        self.status = AppointMent.AppointMentStatus.CANCELED
+        self.save()
+        return self.is_canceled
+    
+    def is_refused(self):
+        self.status = AppointMent.AppointMentStatus.REFUSED
+        self.save()
+        return self.is_refused
 
     def generate_appointment_number(self):
         """Generate a random unique appointment number like 'RDV-12345'."""
         digits = string.digits
-        appointment_number = "RDV-" + "".join(random.choices(digits, k=5))
+        appointment_number = "RDV" + "-".join(random.choices(digits, k=5))
         return appointment_number
