@@ -67,6 +67,7 @@ class UserLoginSerializer(serializers.Serializer):
 
         return data
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -77,5 +78,5 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "contact",
-            "CNI"
+            "CNI",
         ]

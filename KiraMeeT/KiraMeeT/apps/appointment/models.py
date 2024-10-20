@@ -26,7 +26,7 @@ class Doctor(models.Model):
     address = models.CharField(max_length=100, null=False, blank=False)
     cabinet = models.CharField(max_length=100, null=True, blank=True)
     joined_at = models.DateTimeField(auto_now_add=True)
-    
+
     objects = DoctorManager()
 
     def __str__(self):
@@ -77,12 +77,12 @@ class AppointMent(models.Model):
         self.status = AppointMent.AppointMentStatus.ACCEPTED
         self.save()
         return self.is_accepted
-    
+
     def is_canceled(self):
         self.status = AppointMent.AppointMentStatus.CANCELED
         self.save()
         return self.is_canceled
-    
+
     def is_refused(self):
         self.status = AppointMent.AppointMentStatus.REFUSED
         self.save()

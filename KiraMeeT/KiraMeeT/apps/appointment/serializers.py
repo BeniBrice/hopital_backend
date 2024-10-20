@@ -22,6 +22,7 @@ class SpecialitySerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     specialite = SpecialitySerializer()
+
     class Meta:
         model = Doctor
         fields = [
@@ -34,6 +35,8 @@ class DoctorSerializer(serializers.ModelSerializer):
             "address",
             "cabinet",
         ]
+
+
 class DoctorCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
@@ -45,10 +48,12 @@ class DoctorCreateSerializer(serializers.ModelSerializer):
             "appointment_price",
             "address",
             "cabinet",
-        ] 
+        ]
+
     def create_doctor(self, validated_data):
         doctor = Doctor.objects.create_doctor(**validated_data)
         return doctor
+
 
 class DoctorUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,6 +67,7 @@ class DoctorUpdateSerializer(serializers.ModelSerializer):
             "address",
             "cabinet",
         ]
+
 
 class WorkTimeTableSerializer(serializers.ModelSerializer):
     class Meta:

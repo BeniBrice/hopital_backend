@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # 'rest_auth.registration',
     "KiraMeeT.apps.appointment",
     "KiraMeeT.apps.core",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
