@@ -111,3 +111,29 @@ class AppointMentSerializer(serializers.ModelSerializer):  # Correction du nom
             "reason",
             "description",
         ]
+
+
+class AppointMentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointMent
+        fields = [
+            "patient",
+            "doctor",
+            "appointment_time",
+            "appointment_number",
+            "reason",
+            "description",
+        ]
+
+
+class AppointMentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppointMent
+        fields = [
+            "patient",
+            "doctor",
+            "appointment_time",
+            "appointment_number",
+            "reason",
+            "description",
+        ]

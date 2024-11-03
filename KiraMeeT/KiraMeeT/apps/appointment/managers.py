@@ -114,3 +114,59 @@ class WorkTimeManager(BaseUserManager):
             raise ValidationError(
                 "Erreur lors de la création de l'horaire de travail, vérifiez les données saisies."
             )
+
+
+class AppointMentManager(BaseUserManager):
+    """
+    This manager will be used to handle appointment activities
+    """
+
+    def create_appointment(
+        self, patient, doctor, appointment_time, reason, description
+    ):
+        from KiraMeeT.apps.appointment.models import Doctor, WorkTimeTable
+        from KiraMeeT.apps.core.models import User
+
+        try:
+            patient_instance = User.objects.get(pk=patient)
+            doctor_instance = Doctor.objects.get(pk=doctor)
+            appointment_time_instance = WorkTimeTable.objects.get(pk=appointment_time)
+
+            if not appointment_time_instance:
+                raise ValidationError("Appointment time are required")
+
+            appointment = self.model(
+                patient=patient_instance,
+                doctor=doctor_instance,
+                appointment_time=appointment_time_instance,
+                reason=reason,
+                description=description,
+            )
+            appointment.save(using=self._db)
+
+            return appointment
+        except Doctor.DoesNotExist:
+            raise ValidationError("The Doctor doesn't exist")
+        except User.DoesNotExist:
+            raise ValidationError("User doesn't exist")
+
+        except ValidationError as e:
+            logging.error(f"ValidationError : {e}")
+            raise e
+        except IntegrityError as e:
+            logging.error(f"Erreur d'intégrité : {e}")
+            raise ValidationError("Error on appointment demand, check your data added")
+
+
+# patient = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
+#     doctor = models.ForeignKey(
+#         Doctor, on_delete=models.CASCADE, blank=False, null=False
+#     )
+#     appointment_time = models.ForeignKey(
+#         WorkTimeTable, on_delete=models.CASCADE, null=False, blank=False
+#     )
+#     appointment_number = models.CharField(max_length=20, unique=True)
+#     reason = models.CharField(max_length=100, blank=False, null=False)
+#     description = models.CharField(max_length=100, blank=True, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     action_time = models.DateTimeField()

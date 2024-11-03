@@ -3,7 +3,11 @@ import string
 
 from django.db import models
 
-from KiraMeeT.apps.appointment.managers import DoctorManager, WorkTimeManager
+from KiraMeeT.apps.appointment.managers import (
+    AppointMentManager,
+    DoctorManager,
+    WorkTimeManager,
+)
 from KiraMeeT.apps.core.models import User  # noqa
 
 
@@ -66,12 +70,14 @@ class AppointMent(models.Model):
     reason = models.CharField(max_length=100, blank=False, null=False)
     description = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    action_time = models.DateTimeField()
+    action_time = models.DateTimeField(blank=True, null=True)
     status = models.CharField(
         max_length=10,
         choices=AppointMentStatus.choices,
         default=AppointMentStatus.WAITING,
     )
+
+    objects = AppointMentManager()
 
     def save(self, *args, **kwargs):
         if not self.appointment_number:

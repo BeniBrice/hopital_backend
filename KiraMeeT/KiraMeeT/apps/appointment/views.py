@@ -122,3 +122,9 @@ class WorkTimeTAbleViewSet(viewsets.ModelViewSet, MultipleSerializerAPIMixin):
 #     # Add custom logic here
 #     # For example, set the current user as the creator
 #     serializer.save(created_by=self.request.user)
+
+# Appointment viewset
+
+
+class AppointMentViewset(viewsets.ModelViewSet):
+    pass
