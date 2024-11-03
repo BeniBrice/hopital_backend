@@ -4,6 +4,8 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError
 
+logger = logging.getLogger(__name__)
+
 
 class DoctorManager(BaseUserManager):
     def create_doctor(
@@ -56,4 +58,59 @@ class DoctorManager(BaseUserManager):
             logging.error(f"Erreur d'intégrité : {e}")
             raise ValidationError(
                 "Erreur lors de la création du docteur, vérifiez les données saisies."
+            )
+
+
+class WorkTimeManager(BaseUserManager):
+
+    def create_work_time(
+        self,
+        doctor,
+        date,
+        start_at,
+        end_at,
+    ):
+        from KiraMeeT.apps.appointment.models import Doctor
+
+        try:
+            # Fetch the Doctor instance directly
+            doctor_instance = Doctor.objects.get(pk=doctor)
+            # print("**************")
+            # print(doctor_instance)
+            # logger.debug(doctor_instance)
+
+            # Check if the date is valid
+            if not date:
+                raise ValidationError(
+                    "La date est requise pour créer un horaire de travail."
+                )
+
+            # Check if start_at and end_at are valid
+            if not start_at or not end_at:
+                raise ValidationError("Les heures de début et de fin sont requises.")
+
+            # Create a work time entry
+            work_time = self.model(
+                doctor=doctor_instance,  # Directly assign the Doctor instance
+                date=date,
+                start_at=start_at,
+                end_at=end_at,
+            )
+
+            # Save to the database
+            work_time.save(using=self._db)
+            # print(work_time)
+            return work_time
+
+        except Doctor.DoesNotExist:
+            raise ValidationError("Le docteur n'existe pas.")
+
+        except ValidationError as e:
+            logging.error(f"ValidationError : {e}")
+            raise e
+
+        except IntegrityError as e:
+            logging.error(f"Erreur d'intégrité : {e}")
+            raise ValidationError(
+                "Erreur lors de la création de l'horaire de travail, vérifiez les données saisies."
             )

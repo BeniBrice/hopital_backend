@@ -3,7 +3,7 @@ import string
 
 from django.db import models
 
-from KiraMeeT.apps.appointment.managers import DoctorManager
+from KiraMeeT.apps.appointment.managers import DoctorManager, WorkTimeManager
 from KiraMeeT.apps.core.models import User  # noqa
 
 
@@ -34,10 +34,15 @@ class Doctor(models.Model):
 
 
 class WorkTimeTable(models.Model):
+    doctor = models.ForeignKey(
+        Doctor, on_delete=models.CASCADE, null=False, blank=False
+    )
     date = models.DateField(null=False, blank=False)
     start_at = models.TimeField(null=False, blank=False)
     end_at = models.TimeField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = WorkTimeManager()
 
     def __str__(self):
         return self.date.strftime("%Y-%m-%d")
