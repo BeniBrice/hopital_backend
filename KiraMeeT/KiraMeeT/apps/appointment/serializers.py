@@ -6,6 +6,7 @@ from KiraMeeT.apps.appointment.models import (
     Specialty,
     WorkTimeTable,
 )
+from KiraMeeT.apps.core.models import User
 from KiraMeeT.apps.core.serializers import UserSerializer
 
 
@@ -101,22 +102,37 @@ class WorkTimeUpdateTableSerializer(serializers.ModelSerializer):
 
 
 class AppointMentSerializer(serializers.ModelSerializer):  # Correction du nom
+    patient = UserSerializer()
+    doctor = DoctorSerializer()
+    appointment_time = WorkTimeTableSerializer()
+
     class Meta:
         model = AppointMent
         fields = [
+            "id",
             "patient",
             "doctor",
             "appointment_time",
             "appointment_number",
             "reason",
             "description",
+            "created_at",
+            "status",
         ]
 
 
 class AppointMentCreateSerializer(serializers.ModelSerializer):
+    patient = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    doctor = serializers.PrimaryKeyRelatedField(queryset=Doctor.objects.all())
+    appointment_time = serializers.PrimaryKeyRelatedField(
+        queryset=WorkTimeTable.objects.all()
+    )
+    appointment_number = serializers.CharField(read_only=True)
+
     class Meta:
         model = AppointMent
         fields = [
+            "id",
             "patient",
             "doctor",
             "appointment_time",
@@ -124,6 +140,15 @@ class AppointMentCreateSerializer(serializers.ModelSerializer):
             "reason",
             "description",
         ]
+
+    def create(
+        self,
+        validated_data,
+    ):
+        print("validated data ====>>>> : ", validated_data)
+        appointment = AppointMent.objects.create(**validated_data)
+        print("appointment =====>>>>>> :", appointment)
+        return appointment
 
 
 class AppointMentUpdateSerializer(serializers.ModelSerializer):

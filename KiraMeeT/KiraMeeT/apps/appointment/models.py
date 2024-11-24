@@ -102,5 +102,5 @@ class AppointMent(models.Model):
     def generate_appointment_number(self):
         """Generate a random unique appointment number like 'RDV-12345'."""
         digits = string.digits
-        appointment_number = "RDV" + "-".join(random.choices(digits, k=5))
+        appointment_number = "RDV-" + "".join(random.choices(digits, k=5))
         return appointment_number

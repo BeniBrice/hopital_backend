@@ -7,8 +7,11 @@ from rest_framework.permissions import AllowAny
 from KiraMeeT.Response_messages import error_response, success_response
 from KiraMeeT.views_mixins import MultipleSerializerAPIMixin
 
-from .models import Doctor, Specialty, WorkTimeTable
+from .models import AppointMent, Doctor, Specialty, WorkTimeTable
 from .serializers import (
+    AppointMentCreateSerializer,
+    AppointMentSerializer,
+    AppointMentUpdateSerializer,
     DoctorCreateSerializer,
     DoctorSerializer,
     DoctorUpdateSerializer,
@@ -126,5 +129,35 @@ class WorkTimeTAbleViewSet(viewsets.ModelViewSet, MultipleSerializerAPIMixin):
 # Appointment viewset
 
 
-class AppointMentViewset(viewsets.ModelViewSet):
-    pass
+class AppointMentViewset(viewsets.ModelViewSet, MultipleSerializerAPIMixin):
+    permission_classes = [AllowAny]
+    serializer_class = AppointMentSerializer
+    create_serializer_class = AppointMentCreateSerializer
+    update_serializer_class = AppointMentUpdateSerializer
+    queryset = AppointMent.objects.all()
+
+    def get_serializer_class(self):
+        # Use different serializers for create and update actions
+        if self.action == "create" and hasattr(self, "create_serializer_class"):
+            return self.create_serializer_class
+        elif self.action == "update" and hasattr(self, "update_serializer_class"):
+            return self.update_serializer_class
+        else:
+            return self.serializer_class
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            response_data = {
+                "status": True,
+                "message": "Work time entry created successfully.",
+                "code": status.HTTP_201_CREATED,
+                "data": serializer.data,
+            }
+            return success_response(
+                "Work time entry created successfully.",
+                response_data,
+                status.HTTP_201_CREATED,
+            )

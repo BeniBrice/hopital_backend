@@ -118,7 +118,7 @@ class WorkTimeManager(BaseUserManager):
 
 class AppointMentManager(BaseUserManager):
     """
-    This manager will be used to handle appointment activities
+    Manager for handling appointment activities
     """
 
     def create_appointment(
@@ -128,13 +128,25 @@ class AppointMentManager(BaseUserManager):
         from KiraMeeT.apps.core.models import User
 
         try:
+            # Fetch patient, doctor, and appointment time instances
             patient_instance = User.objects.get(pk=patient)
             doctor_instance = Doctor.objects.get(pk=doctor)
             appointment_time_instance = WorkTimeTable.objects.get(pk=appointment_time)
 
-            if not appointment_time_instance:
-                raise ValidationError("Appointment time are required")
+            print(f"doctor id appointment time : {appointment_time_instance.doctor.id}")
+            print(f"doctor id : {doctor_instance.id}")
 
+            # Check if appointment time is assigned to the selected doctor
+            if appointment_time_instance.doctor_id != doctor_instance.id:
+                raise ValidationError(
+                    "The selected appointment time does not match the doctor's schedule."
+                )
+
+            # Ensure the appointment time is valid
+            if not appointment_time_instance:
+                raise ValidationError("Appointment time is required.")
+
+            # Create the appointment
             appointment = self.model(
                 patient=patient_instance,
                 doctor=doctor_instance,
@@ -143,19 +155,22 @@ class AppointMentManager(BaseUserManager):
                 description=description,
             )
             appointment.save(using=self._db)
-
             return appointment
-        except Doctor.DoesNotExist:
-            raise ValidationError("The Doctor doesn't exist")
-        except User.DoesNotExist:
-            raise ValidationError("User doesn't exist")
 
+        except Doctor.DoesNotExist:
+            raise ValidationError("The doctor doesn't exist.")
+        except User.DoesNotExist:
+            raise ValidationError("The patient doesn't exist.")
+        except WorkTimeTable.DoesNotExist:
+            raise ValidationError("The appointment time doesn't exist.")
         except ValidationError as e:
-            logging.error(f"ValidationError : {e}")
+            logging.error(f"ValidationError: {e}")
             raise e
         except IntegrityError as e:
-            logging.error(f"Erreur d'intégrité : {e}")
-            raise ValidationError("Error on appointment demand, check your data added")
+            logging.error(f"IntegrityError: {e}")
+            raise ValidationError(
+                "Error creating appointment. Please check your input data."
+            )
 
 
 # patient = models.ForeignKey(User, on_delete=models.CASCADE, blank=False, null=False)
