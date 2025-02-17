@@ -56,3 +56,27 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.is_active = True
         self.save()
         return True
+
+
+class Profil(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+    )
+    profile_image = models.ImageField(
+        upload_to="profile_photos/",
+        height_field=None,
+        width_field=None,
+        max_length=None,
+    )
+    age = models.IntegerField(blank=False, null=False)
+    country = models.CharField(max_length=100, null=False, blank=False)
+    city = models.CharField(max_length=100, null=False, blank=False)
+
+    def __str__(self):
+        return self.user.username
+
+    # @receiver(post_save, sender=User)
+    # def create_auth_token(sender, instance, created, **kwargs):
+    #     if created:
+    #         Token.objects.create(user=instance)

@@ -6,14 +6,14 @@ from rest_framework.authentication import TokenAuthentication  # noqa
 # from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from KiraMeeT.apps.core.models import User  # noqa
 from KiraMeeT.Response_messages import error_response, success_response
 
-from .serializers import UserLoginSerializer, UserSignupSerializer
+from .serializers import UserLoginSerializer, UserSignupSerializer, ProfilSerializer
 
 
 class SignupAPIView(APIView):
@@ -92,7 +92,16 @@ class LoginAPIView(APIView):
                 # Générer ou obtenir un token
                 token, created = Token.objects.get_or_create(user=user)
 
-                response_data = {"email": user.email, "token": token.key}
+                response_data = {
+                    "userName": user.username,
+                    "token": token.key,
+                    "userFirstName": user.first_name,
+                    "userLastName": user.last_name,
+                    "email": user.email,
+                    "contact": user.contact,
+                    "isDoctor": False,
+                    "cni": user.CNI,
+                }
                 return success_response(
                     "User connected successfully.", response_data, status.HTTP_200_OK
                 )
@@ -104,3 +113,21 @@ class LoginAPIView(APIView):
 
         # Si les données ne sont pas valides, retourner les erreurs de validation
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateProfil(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ProfilSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "message": "Profil created successfully",
+                    "data": serializer.data,
+                    "status": status.HTTP_201_CREATED,
+                }
+            )
+        else:
+            raise ValidationError(serializer.errors)

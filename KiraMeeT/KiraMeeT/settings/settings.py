@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-=#9=g*vo8m&e4g09vq$5l1d63*%yj@d9ut72h##n+_i(-^no60
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["10.0.2.2", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework.authtoken",
     "rest_auth",
-    "django.contrib.sites",
+    # "django.contrib.sites",
     # 'allauth',
     # 'allauth.account',
     # 'rest_auth.registration',
@@ -153,7 +153,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-try:
-    from .local_settings import *  # noqa
-except ImportError:
-    pass
+# try:
+#     from .local_settings import *  # noqa
+# except ImportError:
+#     print("local server not found")

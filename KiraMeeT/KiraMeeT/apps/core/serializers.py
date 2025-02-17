@@ -2,7 +2,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import User
+from .models import User, Profil
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -80,3 +80,20 @@ class UserSerializer(serializers.ModelSerializer):
             "contact",
             "CNI",
         ]
+
+
+class ProfilSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Profil
+        fields = [
+            "profile_image",
+            "age",
+            "country",
+            "city",
+        ]
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        profil = Profil.objects.create(user=user, **validated_data)
+        return profil
