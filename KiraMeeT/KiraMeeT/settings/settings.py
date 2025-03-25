@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "KiraMeeT.apps.appointment",
     "KiraMeeT.apps.core",
     "django_extensions",
+    "KiraMeeT.apps.hospital",
 ]
 
 MIDDLEWARE = [

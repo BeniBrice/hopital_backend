@@ -6,6 +6,8 @@ from django.db import models
 from django.utils import timezone
 
 from KiraMeeT.apps.core.managers import CustomUserManager
+from KiraMeeT.apps.hospital.models import *
+from KiraMeeT.models_utils import ModelsUtils
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -95,3 +97,46 @@ class Doctor(models.Model):
         on_delete=models.CASCADE,
         related_name="doctors",
     )
+    hospital = models.ForeignKey(
+        Hospital,
+        on_delete=models.CASCADE,
+        related_name="doctors",
+    )
+    specialitie = models.ForeignKey(
+        Specialitie,
+        on_delete=models.CASCADE,
+        related_name="doctors",
+    )
+    appointement_price = models.FloatField(
+        blank=True,
+        null=False,
+        default=0,
+    )
+    rating = models.FloatField(
+        null=True,
+        blank=True,
+        default=0,
+    )
+    bio = models.TextField(
+        blank=False,
+        null=False,
+    )
+    availability = models.JSONField(
+        null=False,
+        blank=False,
+    )
+    longitude = models.FloatField(
+        null=True,
+        blank=True,
+        default=0,
+    )
+    latitude = models.FloatField(
+        blank=True,
+        null=True,
+        default=0,
+    )
+    is_actif = models.BooleanField(
+        default=False,
+    )
+    created_at = ModelsUtils.datetime_model_field()
+    updated_at = ModelsUtils.datetime_model_field()
