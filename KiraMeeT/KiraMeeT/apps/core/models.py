@@ -62,6 +62,7 @@ class Profil(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
+        related_name="profil",
     )
     profile_image = models.ImageField(
         blank=True,
@@ -82,3 +83,15 @@ class Profil(models.Model):
     # def create_auth_token(sender, instance, created, **kwargs):
     #     if created:
     #         Token.objects.create(user=instance)
+
+
+class Doctor(models.Model):
+    STATUS_CHOICES = [
+        ("active", "Active"),
+        ("active", "Inactive"),
+    ]
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="doctors",
+    )

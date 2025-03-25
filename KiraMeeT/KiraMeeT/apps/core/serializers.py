@@ -1,8 +1,12 @@
 from django.contrib.auth.hashers import make_password  # type: ignore
 from django.contrib.auth.password_validation import validate_password  # type: ignore
 from rest_framework import serializers  # type: ignore
-
+from rest_framework.response import Response
 from .models import User, Profil
+from rest_framework import status
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
@@ -58,6 +62,75 @@ class UserSignupSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Le mot de passe ne répond pas aux critères de validation."
             )
+
+    def update(self, instance, validated_data):
+        # "first_name",
+        #     "last_name",
+        #     "username",
+        #     "email",
+        #     "contact",
+        #     "password",
+        #     "age",
+        #     "profile_image",
+        #     "country",
+        #     "city",
+
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.username = validated_data.get("username", instance.username)
+        instance.email = validated_data.get("email", instance.email)
+        instance.contact = validated_data.get("contact", instance.contact)
+
+        password = validated_data.get("password", None)
+        if password:
+            instance.set_password(password)
+        instance.save()
+
+        try:
+            profil = Profil.objects.get(user=instance)
+        except Profil.DoesNotExist:
+            logger.error("Profil does not exist")
+            return Response(
+                {
+                    "message": "profil not found",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        age = validated_data.get("age", None)
+        profile_image = validated_data.get("profile_image", None)
+        country = validated_data.get("country", None)
+        city = validated_data.get("city", None)
+        if age is not None:
+            profil.age = age
+        if profile_image is not None:
+            profil.profile_image = profile_image
+        if country is not None:
+            profil.country = country
+        if city is not None:
+            profil.city = city
+
+        profil.save()
+        return instance
+
+    def delete(self, instance):
+        try:
+            profil = Profil.objects.get(user=instance)
+            profil.delete()
+        except Profil.DoesNotExist:
+            logger.error("Profil not found")
+            return Response(
+                {
+                    "message": "profil not found",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        instance.delete()
+        return Response(
+            {"message": f"L'utilisateur {instance.email} has been deleted successfuly"},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class UserLoginSerializer(serializers.Serializer):
