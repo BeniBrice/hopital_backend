@@ -19,7 +19,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     # user_permissions = models.ManyToManyField(
     #     Permission, related_name="custom_users", blank=True
     # )
-    CNI = models.CharField(max_length=70, blank=False, null=False)
+
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -64,14 +64,16 @@ class Profil(models.Model):
         on_delete=models.CASCADE,
     )
     profile_image = models.ImageField(
+        blank=True,
+        null=True,
         upload_to="profile_photos/",
         height_field=None,
         width_field=None,
         max_length=None,
     )
-    age = models.IntegerField(blank=False, null=False)
-    country = models.CharField(max_length=100, null=False, blank=False)
-    city = models.CharField(max_length=100, null=False, blank=False)
+    age = models.IntegerField(blank=True, null=True)
+    country = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.user.username

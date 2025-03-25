@@ -3,8 +3,8 @@ import string
 
 from django.db import models
 
-from KiraMeeT.apps.appointment.managers import DoctorManager, WorkTimeManager
-from KiraMeeT.apps.core.models import User  # noqa
+from KiraMeeT.apps.appointment.managers import DoctorManager, WorkTimeManager  # type: ignore
+from KiraMeeT.apps.core.models import User  # type: ignore # noqa
 
 
 class Specialty(models.Model):

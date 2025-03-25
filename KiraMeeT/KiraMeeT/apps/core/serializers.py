@@ -1,11 +1,16 @@
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
+from django.contrib.auth.hashers import make_password  # type: ignore
+from django.contrib.auth.password_validation import validate_password  # type: ignore
+from rest_framework import serializers  # type: ignore
 
 from .models import User, Profil
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(required=False)
+    age = serializers.IntegerField(required=False, allow_null=True)
+    country = serializers.CharField(required=False, allow_null=True)
+    city = serializers.CharField(required=False, allow_null=True)
+
     class Meta:
         model = User
         fields = [
@@ -14,8 +19,11 @@ class UserSignupSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "contact",
-            "CNI",
             "password",
+            "age",
+            "profile_image",
+            "country",
+            "city",
         ]
 
     def create(self, validated_data):
@@ -35,8 +43,16 @@ class UserSignupSerializer(serializers.ModelSerializer):
                 first_name=validated_data["first_name"],
                 last_name=validated_data["last_name"],
                 contact=validated_data["contact"],
-                CNI=validated_data["CNI"],
             )
+
+            profil_data = {
+                "profile_image": validated_data.get("profile_image"),
+                "age": validated_data.get("age"),
+                "country": validated_data.get("country"),
+                "city": validated_data.get("city"),
+            }
+            profil = Profil.objects.create(user=user, **profil_data)
+
             return user
         else:
             raise serializers.ValidationError(

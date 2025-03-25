@@ -100,7 +100,6 @@ class LoginAPIView(APIView):
                     "email": user.email,
                     "contact": user.contact,
                     "isDoctor": False,
-                    "cni": user.CNI,
                 }
                 return success_response(
                     "User connected successfully.", response_data, status.HTTP_200_OK
@@ -109,6 +108,8 @@ class LoginAPIView(APIView):
                 return error_response(
                     "Invalid credentials, please try again.",
                     status.HTTP_401_UNAUTHORIZED,
+                    # status.HTTP_401_UNAUTHORIZED,
+                    400,
                 )
 
         # Si les données ne sont pas valides, retourner les erreurs de validation
