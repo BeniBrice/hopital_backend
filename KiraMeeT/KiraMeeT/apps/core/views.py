@@ -9,11 +9,18 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 
 from KiraMeeT.apps.core.models import User  # noqa
 from KiraMeeT.Response_messages import error_response, success_response
 
-from .serializers import UserLoginSerializer, UserSignupSerializer, ProfilSerializer
+from .serializers import (
+    UserLoginSerializer,
+    UserSignupSerializer,
+    ProfilSerializer,
+    UserSerializer,
+)
 
 
 class SignupAPIView(APIView):
@@ -73,47 +80,132 @@ class SignupAPIView(APIView):
             )
 
 
+class UpdateProfileApiView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def put(self, request, *args, **kwargs):  # 🔄 PUT pour mise à jour complète
+        return self.update_user(request)
+
+    def patch(self, request, *args, **kwargs):  # 🔄 PATCH pour mise à jour partielle
+        return self.update_user(request, partial=True)
+
+    def update_user(
+        self, request, partial=False
+    ):  # Fonction pour éviter la duplication de code
+        user = request.user
+        data = request.data.copy()
+        data.update(request.FILES)
+
+        serializer = UserSerializer(
+            user,
+            data=data,  # 📌 Ici, on passe `data` et non `request.data` pour inclure les fichiers
+            partial=partial,
+            context={"request": request},
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "success": True,
+                    "message": "User updated successfully",
+                    "data": serializer.data,
+                },
+                status=status.HTTP_200_OK,  # ✅ Utilise 200 au lieu de 201, car c'est une mise à jour
+            )
+
+        return Response(
+            {
+                "success": False,
+                "message": "Error while updating user",
+                "data": serializer.errors,
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+# class UpdateProfileApiView(APIView):
+
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+
+#     def put(self, request, *args, **kwargs):
+
+#         serializer = UserSignupSerializer(data=self.request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             user = User.objects.get(id=self.request.user.id)
+#             if user:
+#                 user_serializer = UserSerializer(user)
+#                 return Response(
+#                     {
+#                         "success": True,
+#                         "message": user_serializer.data,
+#                         "status_code": status.HTTP_201_CREATED,
+#                     }
+#                 )
+#             else:
+#                 return Response(
+#                     {
+#                         "success": False,
+#                         "message": "User not found",
+#                         "status_code": status.HTTP_201_CREATED,
+#                     }
+#                 )
+
+#         return Response(
+#             {
+#                 "success": False,
+#                 "message": serializer.errors,
+#                 "status_code": status.HTTP_400_BAD_REQUEST,
+#             }
+#         )
+
+
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
 
     # authentication_classes = [TokenAuthentication]
     def post(self, request, *args, **kwargs):
         # Utiliser le serializer pour valider les données de requête
-        serializer = UserLoginSerializer(data=request.data)
+        email = request.data.get("email", None)
+        password = request.data.get("password", None)
 
-        if serializer.is_valid():
-            email = serializer.validated_data["email"]
-            password = serializer.validated_data["password"]
+        if not password or not email:
+            return Response(
+                {
+                    "success": False,
+                    "message": "email and password is required",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            # Vérifier si l'utilisateur existe avec l'email et mot de passe
-            user = authenticate(username=email, password=password)
+        user = authenticate(
+            request,
+            email=email,
+            password=password,
+        )
 
-            if user:
-                # Générer ou obtenir un token
-                token, created = Token.objects.get_or_create(user=user)
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user)
+            serializer = UserSerializer(
+                user,
+                context={"request": request},
+            )
 
-                response_data = {
-                    "userName": user.username,
-                    "token": token.key,
-                    "userFirstName": user.first_name,
-                    "userLastName": user.last_name,
-                    "email": user.email,
-                    "contact": user.contact,
-                    "isDoctor": False,
-                }
-                return success_response(
-                    "User connected successfully.", response_data, status.HTTP_200_OK
-                )
-            else:
-                return error_response(
-                    "Invalid credentials, please try again.",
-                    status.HTTP_401_UNAUTHORIZED,
-                    # status.HTTP_401_UNAUTHORIZED,
-                    400,
-                )
-
-        # Si les données ne sont pas valides, retourner les erreurs de validation
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return success_response(
+                "User connected successfully.",
+                serializer.data,
+                status.HTTP_200_OK,
+            )
+        else:
+            return error_response(
+                "Invalid credentials, please try again.",
+                status.HTTP_401_UNAUTHORIZED,
+                # status.HTTP_401_UNAUTHORIZED,
+                400,
+            )
 
 
 class CreateProfil(APIView):

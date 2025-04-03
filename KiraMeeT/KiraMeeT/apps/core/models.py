@@ -5,6 +5,7 @@ from django.contrib.auth.models import (  # Group,; Permission,
 from django.db import models
 from django.utils import timezone
 
+
 from KiraMeeT.apps.core.managers import CustomUserManager
 from KiraMeeT.apps.hospital.models import *
 from KiraMeeT.models_utils import ModelsUtils
@@ -16,7 +17,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=30, blank=False, null=False)
     username = models.CharField(max_length=50, blank=False, null=False)
     email = models.EmailField(max_length=50, blank=False, null=False, unique=True)
-    contact = models.IntegerField(blank=False, null=True)
+    contact = models.CharField(
+        blank=False,
+        null=True,
+        max_length=250,
+    )
     # groups = models.ManyToManyField(Group, related_name="custom_users", blank=True)
     # user_permissions = models.ManyToManyField(
     #     Permission, related_name="custom_users", blank=True
@@ -77,6 +82,9 @@ class Profil(models.Model):
     age = models.IntegerField(blank=True, null=True)
     country = models.CharField(max_length=100, null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
+    is_doctor = models.BooleanField(
+        default=False,
+    )
 
     def __str__(self):
         return self.user.username
@@ -88,10 +96,7 @@ class Profil(models.Model):
 
 
 class Doctor(models.Model):
-    STATUS_CHOICES = [
-        ("active", "Active"),
-        ("active", "Inactive"),
-    ]
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
