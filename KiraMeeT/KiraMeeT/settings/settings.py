@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from datetime import timedelta
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -69,14 +70,20 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 20,
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-    "SLIDING_TOKEN_LIFETIME": timedelta(days=30),
-    "SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER": timedelta(days=1),
-    "SLIDING_TOKEN_LIFETIME_LATE_USER": timedelta(days=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    # Durée de vie du Refresh Token (long terme)
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=1),
+    # "ROTATE_REFRESH_TOKENS": True,
+    # "BLACKLIST_AFTER_ROTATION": True,
+    # Clé de signature du JWT (assure-toi qu'elle est sécurisée en production)
+    # "SIGNING_KEY": "your-secret-key",
+    # Algorithme utilisé pour signer les JWT
+    "ALGORITHM": "HS256",
 }
 
 ROOT_URLCONF = "KiraMeeT.urls"
@@ -153,6 +160,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # try:
 #     from .local_settings import *  # noqa

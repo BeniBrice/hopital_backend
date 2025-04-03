@@ -4,13 +4,14 @@ from rest_framework import serializers  # type: ignore
 from rest_framework.response import Response
 from .models import User, Profil
 from rest_framework import status
+from KiraMeeT.fields import AbsoluteURLImageField
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class UserSignupSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(required=False)
+    profile_image = AbsoluteURLImageField(required=False)
     age = serializers.IntegerField(required=False, allow_null=True)
     country = serializers.CharField(required=False, allow_null=True)
     city = serializers.CharField(required=False, allow_null=True)
@@ -50,10 +51,13 @@ class UserSignupSerializer(serializers.ModelSerializer):
             )
 
             profil_data = {
-                "profile_image": validated_data.get("profile_image"),
-                "age": validated_data.get("age"),
-                "country": validated_data.get("country"),
-                "city": validated_data.get("city"),
+                "profile_image": validated_data.get("profile_image", None),
+                "age": validated_data.get(
+                    "age",
+                    None,
+                ),
+                "country": validated_data.get("country", None),
+                "city": validated_data.get("city", None),
             }
             profil = Profil.objects.create(user=user, **profil_data)
 
@@ -157,20 +161,6 @@ class UserLoginSerializer(serializers.Serializer):
         return data
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "username",
-            "email",
-            "contact",
-            "CNI",
-        ]
-
-
 class ProfilSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -180,9 +170,42 @@ class ProfilSerializer(serializers.ModelSerializer):
             "age",
             "country",
             "city",
+            "is_doctor",
         ]
 
-    def create(self, validated_data):
-        user = self.context["request"].user
-        profil = Profil.objects.create(user=user, **validated_data)
-        return profil
+
+class UserSerializer(serializers.ModelSerializer):
+    profil = ProfilSerializer()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "contact",
+            "password",
+            "is_staff",
+            "profil",
+        ]
+
+    def update(self, instance, validated_data):
+        profil_data = validated_data.pop("profil", None)
+        for (
+            attr,
+            value,
+        ) in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        if profil_data:
+            profil_instance = instance.profil
+            for attr, value in profil_data.items():
+                setattr(profil_instance, attr, value)
+
+            profil_instance.save()
+
+        return instance
