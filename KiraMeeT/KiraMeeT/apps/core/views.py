@@ -10,7 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from django.contrib.auth.hashers import make_password  # type: ignore
 
 from KiraMeeT.apps.core.models import User  # noqa
 from KiraMeeT.Response_messages import error_response, success_response
@@ -103,6 +103,8 @@ class UpdateProfileApiView(APIView):
             partial=partial,
             context={"request": request},
         )
+        if "password" in data:
+            data["password"] = make_password(data["password"])
 
         if serializer.is_valid():
             serializer.save()
