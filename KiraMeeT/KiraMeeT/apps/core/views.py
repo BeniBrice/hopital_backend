@@ -14,12 +14,14 @@ from django.contrib.auth.hashers import make_password  # type: ignore
 
 from KiraMeeT.apps.core.models import User  # noqa
 from KiraMeeT.Response_messages import error_response, success_response
+from KiraMeeT.response_message import ResponseMessage
 
 from .serializers import (
     UserLoginSerializer,
     UserSignupSerializer,
     ProfilSerializer,
     UserSerializer,
+    DoctorSerializer,
 )
 
 
@@ -226,3 +228,40 @@ class CreateProfil(APIView):
             )
         else:
             raise ValidationError(serializer.errors)
+
+
+class CreateDoctorView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def post(self, request, *args, **kwargs):
+
+        try:
+            data = self.request.data.copy()
+            data["user"] = self.request.user.id
+            data["rating"] = 0
+            
+
+            serializer = DoctorSerializer(data=self.request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return ResponseMessage.successMessage(
+                    status_code=status.HTTP_201_CREATED,
+                    data=serializer.data,
+                    message="Doctor account created successfully",
+                )
+            else:
+                return ResponseMessage.error_message(
+                    message="Error while creating doctor account",
+                    data={
+                        "Error": serializer.errors,
+                    },
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
+        except Exception as error:
+            return ResponseMessage.error_message(
+                message=f"Exception while creating doctor account {error}",
+                data={},
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

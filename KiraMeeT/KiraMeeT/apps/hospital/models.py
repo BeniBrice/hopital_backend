@@ -74,10 +74,30 @@ class Hospital(models.Model):
 
 
 class Specialitie(models.Model):
+    SPECIALITIES_CHOICES = [
+        ("anesthésiologie", "Anesthésiologie"),
+        ("cardiologie", "Cardiologie"),
+        ("dermatologie", "Dermatologie"),
+        ("endocrinologie", "Endocrinologie"),
+        ("gastro-entérologie", "Gastro-entérologie"),
+        ("génétique médicale", "Génétique médicale"),
+        ("gériatrie", "Gériatrie"),
+        ("hématologie", "Hématologie"),
+        ("immunologie", "Immunologie"),
+        ("néphrologie", "Néphrologie"),
+        ("neurologie", "Neurologie"),
+        ("oncologie", "Oncologie"),
+        ("pédiatrie", "Pédiatrie"),
+        ("physiatrie", "Physiatrie"),
+        ("pneumologie", "Pneumologie"),
+        ("psychiatrie", "Psychiatrie"),
+        ("rhumatologie", "Rhumatologie"),
+    ]
     name = models.CharField(
         max_length=250,
         null=False,
         blank=False,
+        choices=SPECIALITIES_CHOICES,
     )
     created_at = ModelsUtils.datetime_model_field()
     updated_at = ModelsUtils.datetime_model_field()

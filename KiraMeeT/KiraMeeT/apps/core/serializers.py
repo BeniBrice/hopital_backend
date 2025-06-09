@@ -2,7 +2,8 @@ from django.contrib.auth.hashers import make_password  # type: ignore
 from django.contrib.auth.password_validation import validate_password  # type: ignore
 from rest_framework import serializers  # type: ignore
 from rest_framework.response import Response
-from .models import User, Profil
+from .models import User, Profil, Doctor
+from KiraMeeT.apps.hospital.models import Hospital, Specialitie
 from rest_framework import status
 from KiraMeeT.fields import AbsoluteURLImageField
 import logging
@@ -209,3 +210,30 @@ class UserSerializer(serializers.ModelSerializer):
             profil_instance.save()
 
         return instance
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    hospital = serializers.PrimaryKeyRelatedField(queryset=Hospital.objects.all())
+    specialitie = serializers.PrimaryKeyRelatedField(queryset=Specialitie.objects.all())
+
+    class Meta:
+        model = Doctor
+        fields = [
+            "user",
+            "hospital",
+            "specialitie",
+            "appointement_price",
+            "rating",
+            "bio",
+            "price_currency",
+            "availability",
+            "longitude",
+            "latitude",
+        ]
+        read_only_fields = [
+            "user",
+            "longitude",
+            "latitude",
+            "rating",
+        ]

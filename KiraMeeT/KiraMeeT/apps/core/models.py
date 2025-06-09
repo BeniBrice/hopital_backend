@@ -96,6 +96,17 @@ class Profil(models.Model):
 
 
 class Doctor(models.Model):
+    CURRENCY_CHOICE = [
+        ("bif", "Bif"),
+        ("usd", "Usd"),
+        ("eur", "Eur"),
+    ]
+    STATUS = [
+        ("pending", "Pending"),
+        ("accepted", "Accepted"),
+        ("suspended", "Suspended"),
+        ("refused", "Refused"),
+    ]
 
     user = models.ForeignKey(
         User,
@@ -126,6 +137,14 @@ class Doctor(models.Model):
         blank=False,
         null=False,
     )
+    status = models.CharField(
+        default="pending",
+        choices=STATUS,
+    )
+    price_currency = models.CharField(
+        max_length=250, blank=True, default="bif", choices=CURRENCY_CHOICE
+    )
+
     availability = models.JSONField(
         null=False,
         blank=False,
